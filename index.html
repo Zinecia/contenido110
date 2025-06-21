@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Series Episodes</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+<style>
+body {
+background-color: #121212;
+color: #ffffff;
+font-family: Arial, sans-serif;
+margin: 0;
+padding: 0;
+}
+.container {
+padding: 20px;
+padding-bottom: 80px;
+}
+.video-container {
+position: relative; /* Antes estaba en fixed */
+width: 100%;
+padding-top: 56.25%; /* Mantiene la relación 16:9 */
+background-color: #121212;
+z-index: 1000;
+}
+
+.video-container iframe {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+border: none;
+}
+@media (max-width: 768px) {
+.video-container {
+position: fixed;
+top: 0;
+left: 0;
+}
+
+.content {
+margin-top: 56.25%;
+}
+}
+
+.dropdowns {
+display: flex;
+justify-content: space-between;
+margin-bottom: 20px;
+}
+.dropdowns select {
+background-color: #333;
+color: #fff;
+border: none;
+padding: 10px;
+font-size: 16px;
+border-radius: 5px;
+}
+.episode-list {
+list-style: none;
+padding: 0;
+max-height: 400px;
+overflow-y: auto;
+}
+.episode-item {
+display: flex;
+align-items: center;
+justify-content: space-between;
+background-color: #1e1e1e;
+padding: 10px;
+margin-bottom: 10px;
+border-radius: 5px;
+cursor: pointer;
+}
+.episode-item img {
+width: 80px;
+height: 45px;
+border-radius: 5px;
+margin-right: 10px;
+}
+.episode-info {
+flex-grow: 1;
+}
+.episode-info h3 {
+margin: 0;
+font-size: 18px;
+}
+.episode-info p {
+margin: 5px 0 0;
+color: #888;
+}
+.toggle {
+display: flex;
+align-items: center;
+}
+.toggle label {
+margin-right: 10px;
+}
+.toggle input[type="checkbox"] {
+width: 40px;
+height: 20px;
+appearance: none;
+background-color: #555;
+border-radius: 10px;
+position: relative;
+outline: none;
+cursor: pointer;
+}
+.toggle input[type="checkbox"]:checked {
+background-color: #0f0;
+}
+.toggle input[type="checkbox"]::before {
+content: '';
+position: absolute;
+width: 18px;
+height: 18px;
+background-color: #fff;
+border-radius: 50%;
+top: 1px;
+left: 1px;
+transition: 0.3s;
+}
+.toggle input[type="checkbox"]:checked::before {
+transform: translateX(20px);
+}
+.bottom-nav {
+position: fixed;
+bottom: 0;
+width: 100%;
+background-color: #312e2e;
+display: flex;
+justify-content: space-around;
+padding: 15px 0;
+}
+.bottom-nav a {
+color: #888;
+text-align: center;
+text-decoration: none;
+flex-grow: 1;
+}
+.bottom-nav a.active {
+color:rgb(136, 5, 5);
+}
+.bottom-nav a i {
+font-size: 24px;
+}
+.bottom-nav a span {
+display: block;
+font-size: 12px;
+margin-top: 4px;
+}
+
+.synopsis {
+display: none;
+background-color: #222;
+border-radius: 8px;
+padding: 10px;
+margin-bottom: 20px;
+font-size: 15px;
+line-height: 1.6;
+}
+
+.synopsis-button {
+background-color: #333;
+color: #fff;
+border: none;
+border-radius: 8px;
+padding: 10px 15px;
+cursor: pointer;
+font-size: 15px;
+margin-left: 10px;
+white-space: nowrap;
+}
+</style>
+<script disable-devtool-auto src='https://cdn.jsdelivr.net/npm/disable-devtool@latest'></script>
+</head>
+<body>
+
+<!-- Video principal -->
+<div class="video-container">
+<iframe
+allowfullscreen
+id="main-video"
+src="https://vidhidepro.com/v/0rq1iqdnll7w"
+sandbox="allow-scripts allow-same-origin allow-presentation"
+></iframe>
+</div>
+
+
+<br>
+<div class="container">
+<div class="content">
+<div class="dropdowns">
+<select id="season-select">
+<option value="season1">Temporada 1</option>
+
+
+</select>
+<button class="synopsis-button" onclick="toggleSynopsis()">Ver sinopsis</button>
+</div>
+<div class="synopsis" id="synopsis">
+<p>La historia la protagoniza Kafka Hibino, un hombre de 32 años que quiere unirse a la Fuerza de Defensa y cumplir la promesa que le hizo a una amiga de la infancia, Mina Ashiro. En su trabajo como limpiador de restos de Kaiju forja amistad con un nuevo compañero, Reno Ichikawa, cuya determinación de unirse a la Fuerza de Defensa inspira a Kafka a cumplir su promesa de la infancia de unirse a Mina para proteger a la humanidad. Cuando un pequeño Kaiju se introduce en el interior de Kafka, éste adquiere una fuerza sobrehumana y poderes que le permiten luchar contra los Kaiju. Ahora se esfuerza por ganarse la confianza de sus compañeros humanos, derrotar a unos Kaiju cada vez más poderosos y proteger el mundo.
+</p>
+</div>
+<h2>Kaiju No. 8</h2>
+
+<div id="last-watched-info" style="color: #ccc; margin-bottom: 10px;"></div>
+<div id="progress-info" style="color: #999; font-size: 14px; margin-bottom: 20px;"></div>
+<button id="reset-progress" style="
+background-color: #660000;
+color: white;
+border: none;
+padding: 10px 15px;
+border-radius: 8px;
+cursor: pointer;
+margin-bottom: 20px;
+">
+Reiniciar progreso
+</button>
+
+
+
+
+<ul class="episode-list" id="episode-list">
+
+<li class="episode-item" data-video-url="https://vidhidepro.com/v/0rq1iqdnll7w" data-season="season1" >
+<img src="https://image.tmdb.org/t/p/w300/6sYkwztTsCvHSt4eNaNCofIabaA.jpg" alt="Thumbnail">
+<div class="episode-info">
+<h3>Episode 1</h3>
+<p>T1 - EP1</p>
+</div>
+<div class="toggle">
+<label>NO VISTO</label>
+<input data-episode="1" type="checkbox" />
+</div>
+</li>
+
+<li class="episode-item" data-video-url="https://vidhidepro.com/v/5c72xvbwb0kk" data-season="season1" >
+<img src="https://image.tmdb.org/t/p/w300/qnw5xoDHL1YBc7uNXaoqgxeXMOk.jpg" alt="Thumbnail">
+<div class="episode-info">
+<h3>Episode 2</h3>
+<p>T1 - EP2</p>
+</div>
+<div class="toggle">
+<label>NO VISTO</label>
+<input data-episode="2" type="checkbox" />
+</div>
+</li>
+
+<li class="episode-item" data-video-url="https://vidhidepro.com/v/9wrl02doj2pb" data-season="season1" >
+<img src="https://image.tmdb.org/t/p/w300/4wmoBvVAh9jAVNZOtQxVihNQ5gb.jpg" alt="Thumbnail">
+<div class="episode-info">
+<h3>Episode 3</h3>
+<p>T1 - EP3</p>
+</div>
+<div class="toggle">
+<label>NO VISTO</label>
+<input data-episode="3" type="checkbox" />
+</div>
+</li>
+
+<li class="episode-item" data-video-url="https://vidhidepro.com/v/q6jao0ky7bof" data-season="season1" >
+<img src="https://image.tmdb.org/t/p/w300/ocKXnYcu58oMS5065PMhDsTbNfM.jpg" alt="Thumbnail">
+<div class="episode-info">
+<h3>Episode 4</h3>
+<p>T1 - EP4</p>
+</div>
+<div class="toggle">
+<label>NO VISTO</label>
+<input data-episode="4" type="checkbox" />
+</div>
+</li>
+
+<li class="episode-item" data-video-url="https://vidhidepro.com/v/yygkiy7qludt" data-season="season1" >
+<img src="https://image.tmdb.org/t/p/w300/7TMMZ08p1DRskTG3OHomLsZgEN1.jpg" alt="Thumbnail">
+<div class="episode-info">
+<h3>Episode 5</h3>
+<p>T1 - EP5</p>
+</div>
+<div class="toggle">
+<label>NO VISTO</label>
+<input data-episode="5" type="checkbox" />
+</div>
+</li>
+
+<li class="episode-item" data-video-url="https://vidhidepro.com/v/z3fr9mh3rvqi" data-season="season1" >
+<img src="https://image.tmdb.org/t/p/w300/sYo459puDf7hNXdOUAJUSvQ7BEM.jpg" alt="Thumbnail">
+<div class="episode-info">
+<h3>Episode 6</h3>
+<p>T1 - EP6</p>
+</div>
+<div class="toggle">
+<label>NO VISTO</label>
+<input data-episode="6" type="checkbox" />
+</div>
+</li>
+
+<li class="episode-item" data-video-url="https://vidhidepro.com/v/h4pizq2pg0ia" data-season="season1" >
+<img src="https://image.tmdb.org/t/p/w300/3GrzXjcZCi8rt48GvcuEltQINkP.jpg" alt="Thumbnail">
+<div class="episode-info">
+<h3>Episode 7</h3>
+<p>T1 - EP7</p>
+</div>
+<div class="toggle">
+<label>NO VISTO</label>
+<input data-episode="7" type="checkbox" />
+</div>
+</li>
+
+<li class="episode-item" data-video-url="https://vidhidepro.com/v/lajce1h66q9d" data-season="season1" >
+<img src="https://image.tmdb.org/t/p/w300/4m3RTR9wH3GyEDPROlP0zXgZ7wg.jpg" alt="Thumbnail">
+<div class="episode-info">
+<h3>Episode 8</h3>
+<p>T1 - EP8</p>
+</div>
+<div class="toggle">
+<label>NO VISTO</label>
+<input data-episode="8" type="checkbox" />
+</div>
+</li>
+
+<li class="episode-item" data-video-url="https://vidhidepro.com/v/uwahrh2gza70" data-season="season1" >
+<img src="https://image.tmdb.org/t/p/w300/alWrh2pBJ0xJ0ZQIg8ckVyHYU9h.jpg" alt="Thumbnail">
+<div class="episode-info">
+<h3>Episode 9</h3>
+<p>T1 - EP9</p>
+</div>
+<div class="toggle">
+<label>NO VISTO</label>
+<input data-episode="9" type="checkbox" />
+</div>
+</li>
+
+<li class="episode-item" data-video-url="https://vidhidepro.com/v/d0h5wn4togtx" data-season="season1" >
+<img src="https://image.tmdb.org/t/p/w300/e5dPuTaiuRujmCZYpSFFfUDOKq7.jpg" alt="Thumbnail">
+<div class="episode-info">
+<h3>Episode 10</h3>
+<p>T1 - EP10</p>
+</div>
+<div class="toggle">
+<label>NO VISTO</label>
+<input data-episode="10" type="checkbox" />
+</div>
+</li>
+
+<li class="episode-item" data-video-url="https://vidhidepro.com/v/9lxnocznj2g8" data-season="season1" >
+<img src="https://image.tmdb.org/t/p/w300/dIJSzy8gGinqzjI2rdjxMYIOiwj.jpg" alt="Thumbnail">
+<div class="episode-info">
+<h3>Episode 11</h3>
+<p>T1 - EP11</p>
+</div>
+<div class="toggle">
+<label>NO VISTO</label>
+<input data-episode="11" type="checkbox" />
+</div>
+</li>
+
+<li class="episode-item" data-video-url="https://vidhidepro.com/v/4vhi4o090iua" data-season="season1" >
+<img src="https://image.tmdb.org/t/p/w300/gcDsdRpBJSvRvyAvDP1xtvLNlRk.jpg" alt="Thumbnail">
+<div class="episode-info">
+<h3>Episode 12</h3>
+<p>T1 - EP12</p>
+</div>
+<div class="toggle">
+<label>NO VISTO</label>
+<input data-episode="12" type="checkbox" />
+</div>
+</li>
+
+
+<!--PEGAR TEMPORADA ABAJO-->
+
+
+
+<!--NO PASARSE ESTA ETIQUETA-->
+</ul>
+</div>
+</div>
+
+
+<!-- Navegación inferior -->
+<div class="bottom-nav">
+<div class="bottom-nav">
+<a href="javascript:window.history.back();">
+<i class="fa fa-arrow-left"></i>
+<span>Regresar</span>
+</a>
+<a href="https://zinecia.github.io/Buscador/">
+<i class="fas fa-search"></i>
+<span>Buscador</span>
+</a>
+<a href="https://zinecia.github.io/movie/">
+<i class="fas fa-film"></i>
+<span>Movies</span>
+</a>
+</div>
+
+
+const serieId = "Kaiju No. 8";
+
+<script>
+const serieId = "Kaiju No. 8";
+
+document.addEventListener('DOMContentLoaded', function () {
+const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+const episodeItems = document.querySelectorAll('.episode-item');
+const mainVideo = document.getElementById('main-video');
+const seasonSelect = document.getElementById('season-select');
+const episodeList = document.getElementById('episode-list');
+const lastWatchedInfo = document.getElementById('last-watched-info');
+const progressInfo = document.getElementById('progress-info');
+
+// Mostrar estado de episodios
+checkboxes.forEach(function (checkbox) {
+const episode = checkbox.getAttribute('data-episode');
+const label = checkbox.previousElementSibling;
+const key = serieId + "-episode-" + episode;
+const storedStatus = localStorage.getItem(key) === 'true';
+
+checkbox.checked = storedStatus;
+label.textContent = storedStatus ? 'VISTO' : 'NO VISTO';
+
+checkbox.addEventListener('change', function () {
+const newStatus = checkbox.checked;
+localStorage.setItem(key, newStatus);
+label.textContent = newStatus ? 'VISTO' : 'NO VISTO';
+updateProgress();
+});
+
+checkbox.addEventListener('click', function (event) {
+event.stopPropagation();
+});
+});
+
+// Reproducir episodio y guardar último visto
+episodeItems.forEach(function (item) {
+item.addEventListener('click', function () {
+const videoUrl = item.getAttribute('data-video-url');
+const season = item.getAttribute('data-season');
+const episode = item.querySelector('input[type="checkbox"]').getAttribute('data-episode');
+
+mainVideo.src = videoUrl;
+
+localStorage.setItem(serieId + "-last-watched", videoUrl);
+localStorage.setItem(serieId + "-last-watched-season", season);
+localStorage.setItem(serieId + "-last-watched-ep", episode);
+
+updateLastWatched();
+});
+});
+
+// Filtro de temporadas
+seasonSelect.addEventListener('change', function () {
+const selectedSeason = seasonSelect.value;
+
+// Ocultar todos los episodios
+const allEpisodes = episodeList.querySelectorAll('.episode-item');
+allEpisodes.forEach(function (ep) {
+ep.style.display = 'none';
+});
+
+// Mostrar solo los de la temporada seleccionada
+const selectedEpisodes = episodeList.querySelectorAll('.episode-item[data-season="' + selectedSeason + '"]');
+selectedEpisodes.forEach(function (ep) {
+ep.style.display = 'flex';
+});
+
+updateProgress();
+});
+
+// Cargar último episodio automáticamente
+const lastVideo = localStorage.getItem(serieId + "-last-watched");
+if (lastVideo) {
+mainVideo.src = lastVideo;
+}
+
+function updateLastWatched() {
+const ep = localStorage.getItem(serieId + "-last-watched-ep");
+const season = localStorage.getItem(serieId + "-last-watched-season");
+if (ep && season) {
+lastWatchedInfo.textContent = "Último episodio visto: " + season.toUpperCase() + " - EP" + ep;
+} else {
+lastWatchedInfo.textContent = '';
+}
+}
+
+function updateProgress() {
+const selectedSeason = seasonSelect.value;
+const episodes = episodeList.querySelectorAll('.episode-item[data-season="' + selectedSeason + '"]');
+
+let total = 0;
+let vistos = 0;
+
+episodes.forEach(function (ep) {
+const checkbox = ep.querySelector('input[type="checkbox"]');
+total++;
+if (checkbox.checked) {
+vistos++;
+}
+});
+
+progressInfo.textContent = "Progreso: " + vistos + " de " + total + " episodios vistos";
+}
+
+// Reiniciar progreso
+document.getElementById('reset-progress').addEventListener('click', function () {
+if (confirm('¿Estás seguro de que deseas reiniciar todo el progreso?')) {
+const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+checkboxes.forEach(function (checkbox) {
+const episode = checkbox.getAttribute('data-episode');
+const key = serieId + "-episode-" + episode;
+localStorage.removeItem(key);
+checkbox.checked = false;
+checkbox.previousElementSibling.textContent = 'NO VISTO';
+});
+
+localStorage.removeItem(serieId + "-last-watched");
+localStorage.removeItem(serieId + "-last-watched-ep");
+localStorage.removeItem(serieId + "-last-watched-season");
+
+document.getElementById('main-video').src = '';
+lastWatchedInfo.textContent = '';
+progressInfo.textContent = 'Progreso: 0 episodios vistos';
+}
+});
+
+// Inicializar
+seasonSelect.dispatchEvent(new Event('change'));
+updateLastWatched();
+});
+
+// Función para mostrar/ocultar la sinopsis
+function toggleSynopsis() {
+const synopsis = document.getElementById('synopsis');
+const button = document.querySelector('.synopsis-button');
+if (synopsis.style.display === 'none' || synopsis.style.display === '') {
+synopsis.style.display = 'block';
+button.innerText = 'Ocultar sinopsis';
+} else {
+synopsis.style.display = 'none';
+button.innerText = 'Ver sinopsis';
+}
+}
+</script>
+
+</body>
+</html>
