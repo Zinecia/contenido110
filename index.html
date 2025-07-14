@@ -1,549 +1,293 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Series Episodes</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kaiju No. 8</title>
+<script src="https://cdn.tailwindcss.com"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
 <style>
-body {
-background-color: #121212;
-color: #ffffff;
-font-family: Arial, sans-serif;
+.scrollbar-hide::-webkit-scrollbar {
+display: none;
+}
+.scrollbar-hide {
+-ms-overflow-style: none;
+scrollbar-width: none;
+}
+body, html {
 margin: 0;
 padding: 0;
+height: 100%;
 }
-.container {
-padding: 20px;
-padding-bottom: 80px;
-}
-.video-container {
-position: relative; /* Antes estaba en fixed */
-width: 100%;
-padding-top: 56.25%; /* Mantiene la relación 16:9 */
-background-color: #121212;
-z-index: 1000;
-}
-
-.video-container iframe {
-position: absolute;
+body::before {
+content: "";
+position: fixed;
 top: 0;
 left: 0;
 width: 100%;
 height: 100%;
-border: none;
+background-image: url('https://image.tmdb.org/t/p/w500//9DrORnlwnjt5SeJKcuE5sqOoIdV.jpg');
+background-size: cover;
+background-position: center;
+z-index: -2;
 }
-@media (max-width: 768px) {
-.video-container {
+body::after {
+content: "";
 position: fixed;
 top: 0;
 left: 0;
-}
-
-.content {
-margin-top: 56.25%;
-}
-}
-
-.dropdowns {
-display: flex;
-justify-content: space-between;
-margin-bottom: 20px;
-}
-.dropdowns select {
-background-color: #333;
-color: #fff;
-border: none;
-padding: 10px;
-font-size: 16px;
-border-radius: 5px;
-}
-.episode-list {
-list-style: none;
-padding: 0;
-max-height: 400px;
-overflow-y: auto;
-}
-.episode-item {
-display: flex;
-align-items: center;
-justify-content: space-between;
-background-color: #1e1e1e;
-padding: 10px;
-margin-bottom: 10px;
-border-radius: 5px;
-cursor: pointer;
-}
-.episode-item img {
-width: 80px;
-height: 45px;
-border-radius: 5px;
-margin-right: 10px;
-}
-.episode-info {
-flex-grow: 1;
-}
-.episode-info h3 {
-margin: 0;
-font-size: 18px;
-}
-.episode-info p {
-margin: 5px 0 0;
-color: #888;
-}
-.toggle {
-display: flex;
-align-items: center;
-}
-.toggle label {
-margin-right: 10px;
-}
-.toggle input[type="checkbox"] {
-width: 40px;
-height: 20px;
-appearance: none;
-background-color: #555;
-border-radius: 10px;
-position: relative;
-outline: none;
-cursor: pointer;
-}
-.toggle input[type="checkbox"]:checked {
-background-color: #0f0;
-}
-.toggle input[type="checkbox"]::before {
-content: '';
-position: absolute;
-width: 18px;
-height: 18px;
-background-color: #fff;
-border-radius: 50%;
-top: 1px;
-left: 1px;
-transition: 0.3s;
-}
-.toggle input[type="checkbox"]:checked::before {
-transform: translateX(20px);
-}
-.bottom-nav {
-position: fixed;
-bottom: 0;
 width: 100%;
-background-color: #312e2e;
-display: flex;
-justify-content: space-around;
-padding: 15px 0;
+height: 100%;
+background: rgba(0, 0, 0, 0.75);
+z-index: -1;
 }
-.bottom-nav a {
-color: #888;
-text-align: center;
-text-decoration: none;
-flex-grow: 1;
-}
-.bottom-nav a.active {
-color:rgb(136, 5, 5);
-}
-.bottom-nav a i {
-font-size: 24px;
-}
-.bottom-nav a span {
-display: block;
-font-size: 12px;
-margin-top: 4px;
-}
-
-.synopsis {
-display: none;
-background-color: #222;
-border-radius: 8px;
-padding: 10px;
-margin-bottom: 20px;
-font-size: 15px;
-line-height: 1.6;
-}
-
-.synopsis-button {
-background-color: #333;
-color: #fff;
+#iframe-principal {
+width: 100%;
+height: 220px;
 border: none;
-border-radius: 8px;
-padding: 10px 15px;
-cursor: pointer;
-font-size: 15px;
-margin-left: 10px;
-white-space: nowrap;
+background: black;
+}
+#contenedor-video {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+z-index: 10;
+}
+.capitulo-seleccionado {
+background-color: #FF0000 !important;
+color: #fff !important;
+font-weight: bold;
+border-bottom: none !important;
 }
 </style>
-<script disable-devtool-auto src='https://cdn.jsdelivr.net/npm/disable-devtool@latest'></script>
 </head>
-<body>
+<body class="text-white font-sans leading-relaxed">
 
-<!-- Video principal -->
-<div class="video-container">
-<iframe
-allowfullscreen
-id="main-video"
-src="https://vidhidepro.com/v/0rq1iqdnll7w"
-sandbox="allow-scripts allow-same-origin allow-presentation"
-></iframe>
+
+<div id="contenedor-video" class="relative">
+<iframe id="iframe-principal" allow="fullscreen" allowfullscreen></iframe>
+
+
+<a href="https://zinecia.github.io/Home" aria-label="Volver" class="absolute top-3 left-3 text-white text-2xl z-20">
+<i class="fas fa-arrow-left"></i>
+</a>
+
+<!-- Bloqueador de clics -->
+<div class="absolute top-0 left-0 w-full h-full z-10" style="pointer-events: none;"></div>
 </div>
 
 
-<br>
-<div class="container">
-<div class="content">
-<div class="dropdowns">
-<select id="season-select">
-<option value="season1">Temporada 1</option>
+<!-- CONTENIDO -->
+<div class="px-4 pt-60 pb-4 space-y-4">
+
+<div class="flex items-center justify-between">
+<h1 class="text-xl sm:text-2xl font-bold">Kaiju No. 8 T<span id="temp-titulo">1</span></h1>
+<button aria-label="Favorito" class="bg-[#1f1f1f] px-3 py-1 rounded text-sm flex items-center gap-2">
+
+</button>
+</div>
+
+<!-- Calificación y género -->
+<div class="flex flex-wrap items-center gap-3 text-sm text-gray-400">
+<span><strong class="text-[#FF7F00]">8.6</strong> / 10</span>
+<span class="text-white">•</span>
+<span>Animación,Action & Adventure,Sci-Fi & Fantasy,</span><span class="text-white">•</span><span>2024</span>
+</div>
+
+<!-- Selector de Temporadas -->
+<div class="flex items-center gap-3">
+<label for="temporada" class="text-sm text-gray-300">Temporada:</label>
+<select id="temporada" class="bg-[#1f1f1f] text-white px-3 py-1 rounded text-sm">
+<option value="1">Temporada 1</option>
 
 
 </select>
-<button class="synopsis-button" onclick="toggleSynopsis()">Ver sinopsis</button>
-</div>
-<div class="synopsis" id="synopsis">
-<p>La historia la protagoniza Kafka Hibino, un hombre de 32 años que quiere unirse a la Fuerza de Defensa y cumplir la promesa que le hizo a una amiga de la infancia, Mina Ashiro. En su trabajo como limpiador de restos de Kaiju forja amistad con un nuevo compañero, Reno Ichikawa, cuya determinación de unirse a la Fuerza de Defensa inspira a Kafka a cumplir su promesa de la infancia de unirse a Mina para proteger a la humanidad. Cuando un pequeño Kaiju se introduce en el interior de Kafka, éste adquiere una fuerza sobrehumana y poderes que le permiten luchar contra los Kaiju. Ahora se esfuerza por ganarse la confianza de sus compañeros humanos, derrotar a unos Kaiju cada vez más poderosos y proteger el mundo.
-</p>
-</div>
-<h2>Kaiju No. 8</h2>
-
-<div id="last-watched-info" style="color: #ccc; margin-bottom: 10px;"></div>
-<div id="progress-info" style="color: #999; font-size: 14px; margin-bottom: 20px;"></div>
-<button id="reset-progress" style="
-background-color: #660000;
-color: white;
-border: none;
-padding: 10px 15px;
-border-radius: 8px;
-cursor: pointer;
-margin-bottom: 20px;
-">
-Reiniciar progreso
-</button>
-
-
-
-
-<ul class="episode-list" id="episode-list">
-
-<li class="episode-item" data-video-url="https://vidhidepro.com/v/0rq1iqdnll7w" data-season="season1" >
-<img src="https://image.tmdb.org/t/p/w300/6sYkwztTsCvHSt4eNaNCofIabaA.jpg" alt="Thumbnail">
-<div class="episode-info">
-<h3>Episode 1</h3>
-<p>T1 - EP1</p>
-</div>
-<div class="toggle">
-<label>NO VISTO</label>
-<input data-episode="1" type="checkbox" />
-</div>
-</li>
-
-<li class="episode-item" data-video-url="https://vidhidepro.com/v/5c72xvbwb0kk" data-season="season1" >
-<img src="https://image.tmdb.org/t/p/w300/qnw5xoDHL1YBc7uNXaoqgxeXMOk.jpg" alt="Thumbnail">
-<div class="episode-info">
-<h3>Episode 2</h3>
-<p>T1 - EP2</p>
-</div>
-<div class="toggle">
-<label>NO VISTO</label>
-<input data-episode="2" type="checkbox" />
-</div>
-</li>
-
-<li class="episode-item" data-video-url="https://vidhidepro.com/v/9wrl02doj2pb" data-season="season1" >
-<img src="https://image.tmdb.org/t/p/w300/4wmoBvVAh9jAVNZOtQxVihNQ5gb.jpg" alt="Thumbnail">
-<div class="episode-info">
-<h3>Episode 3</h3>
-<p>T1 - EP3</p>
-</div>
-<div class="toggle">
-<label>NO VISTO</label>
-<input data-episode="3" type="checkbox" />
-</div>
-</li>
-
-<li class="episode-item" data-video-url="https://vidhidepro.com/v/q6jao0ky7bof" data-season="season1" >
-<img src="https://image.tmdb.org/t/p/w300/ocKXnYcu58oMS5065PMhDsTbNfM.jpg" alt="Thumbnail">
-<div class="episode-info">
-<h3>Episode 4</h3>
-<p>T1 - EP4</p>
-</div>
-<div class="toggle">
-<label>NO VISTO</label>
-<input data-episode="4" type="checkbox" />
-</div>
-</li>
-
-<li class="episode-item" data-video-url="https://vidhidepro.com/v/yygkiy7qludt" data-season="season1" >
-<img src="https://image.tmdb.org/t/p/w300/7TMMZ08p1DRskTG3OHomLsZgEN1.jpg" alt="Thumbnail">
-<div class="episode-info">
-<h3>Episode 5</h3>
-<p>T1 - EP5</p>
-</div>
-<div class="toggle">
-<label>NO VISTO</label>
-<input data-episode="5" type="checkbox" />
-</div>
-</li>
-
-<li class="episode-item" data-video-url="https://vidhidepro.com/v/z3fr9mh3rvqi" data-season="season1" >
-<img src="https://image.tmdb.org/t/p/w300/sYo459puDf7hNXdOUAJUSvQ7BEM.jpg" alt="Thumbnail">
-<div class="episode-info">
-<h3>Episode 6</h3>
-<p>T1 - EP6</p>
-</div>
-<div class="toggle">
-<label>NO VISTO</label>
-<input data-episode="6" type="checkbox" />
-</div>
-</li>
-
-<li class="episode-item" data-video-url="https://vidhidepro.com/v/h4pizq2pg0ia" data-season="season1" >
-<img src="https://image.tmdb.org/t/p/w300/3GrzXjcZCi8rt48GvcuEltQINkP.jpg" alt="Thumbnail">
-<div class="episode-info">
-<h3>Episode 7</h3>
-<p>T1 - EP7</p>
-</div>
-<div class="toggle">
-<label>NO VISTO</label>
-<input data-episode="7" type="checkbox" />
-</div>
-</li>
-
-<li class="episode-item" data-video-url="https://vidhidepro.com/v/lajce1h66q9d" data-season="season1" >
-<img src="https://image.tmdb.org/t/p/w300/4m3RTR9wH3GyEDPROlP0zXgZ7wg.jpg" alt="Thumbnail">
-<div class="episode-info">
-<h3>Episode 8</h3>
-<p>T1 - EP8</p>
-</div>
-<div class="toggle">
-<label>NO VISTO</label>
-<input data-episode="8" type="checkbox" />
-</div>
-</li>
-
-<li class="episode-item" data-video-url="https://vidhidepro.com/v/uwahrh2gza70" data-season="season1" >
-<img src="https://image.tmdb.org/t/p/w300/alWrh2pBJ0xJ0ZQIg8ckVyHYU9h.jpg" alt="Thumbnail">
-<div class="episode-info">
-<h3>Episode 9</h3>
-<p>T1 - EP9</p>
-</div>
-<div class="toggle">
-<label>NO VISTO</label>
-<input data-episode="9" type="checkbox" />
-</div>
-</li>
-
-<li class="episode-item" data-video-url="https://vidhidepro.com/v/d0h5wn4togtx" data-season="season1" >
-<img src="https://image.tmdb.org/t/p/w300/e5dPuTaiuRujmCZYpSFFfUDOKq7.jpg" alt="Thumbnail">
-<div class="episode-info">
-<h3>Episode 10</h3>
-<p>T1 - EP10</p>
-</div>
-<div class="toggle">
-<label>NO VISTO</label>
-<input data-episode="10" type="checkbox" />
-</div>
-</li>
-
-<li class="episode-item" data-video-url="https://vidhidepro.com/v/9lxnocznj2g8" data-season="season1" >
-<img src="https://image.tmdb.org/t/p/w300/dIJSzy8gGinqzjI2rdjxMYIOiwj.jpg" alt="Thumbnail">
-<div class="episode-info">
-<h3>Episode 11</h3>
-<p>T1 - EP11</p>
-</div>
-<div class="toggle">
-<label>NO VISTO</label>
-<input data-episode="11" type="checkbox" />
-</div>
-</li>
-
-<li class="episode-item" data-video-url="https://vidhidepro.com/v/4vhi4o090iua" data-season="season1" >
-<img src="https://image.tmdb.org/t/p/w300/gcDsdRpBJSvRvyAvDP1xtvLNlRk.jpg" alt="Thumbnail">
-<div class="episode-info">
-<h3>Episode 12</h3>
-<p>T1 - EP12</p>
-</div>
-<div class="toggle">
-<label>NO VISTO</label>
-<input data-episode="12" type="checkbox" />
-</div>
-</li>
-
-
-<!--PEGAR TEMPORADA ABAJO-->
-
-
-
-<!--NO PASARSE ESTA ETIQUETA-->
-</ul>
-</div>
 </div>
 
 
-<!-- Navegación inferior -->
-<div class="bottom-nav">
-<div class="bottom-nav">
-<a href="javascript:window.history.back();">
-<i class="fa fa-arrow-left"></i>
-<span>Regresar</span>
-</a>
-<a href="https://zinecia.github.io/Buscador/">
-<i class="fas fa-search"></i>
-<span>Buscador</span>
-</a>
-<a href="https://zinecia.github.io/movie/">
-<i class="fas fa-film"></i>
-<span>Movies</span>
-</a>
+<div class="flex space-x-2 overflow-x-auto scrollbar-hide pb-1" id="lista-capitulos">
+
 </div>
 
+<!-- Sinopsis -->
+<div class="bg-[#1e1e1e] rounded-lg p-4 text-sm text-gray-300 leading-relaxed">
+<p><span class="font-semibold text-white">Sinopsis:</span>La historia la protagoniza Kafka Hibino, un hombre de 32 años que quiere unirse a la Fuerza de Defensa y cumplir la promesa que le hizo a una amiga de la infancia, Mina Ashiro. En su trabajo como limpiador de restos de Kaiju forja amistad con un nuevo compañero, Reno Ichikawa, cuya determinación de unirse a la Fuerza de Defensa inspira a Kafka a cumplir su promesa de la infancia de unirse a Mina para proteger a la humanidad. Cuando un pequeño Kaiju se introduce en el interior de Kafka, éste adquiere una fuerza sobrehumana y poderes que le permiten luchar contra los Kaiju. Ahora se esfuerza por ganarse la confianza de sus compañeros humanos, derrotar a unos Kaiju cada vez más poderosos y proteger el mundo.</p>
+</div>
 
-const serieId = "Kaiju No. 8";
+</div>
 
 <script>
-const serieId = "Kaiju No. 8";
+var serieId = "207468";
+var temporadaSelect = document.getElementById('temporada');
+var listaCapitulos = document.getElementById('lista-capitulos');
+var tempTitulo = document.getElementById('temp-titulo');
+var btnFavorito = document.querySelector('button[aria-label="Favorito"]');
+var iconoCorazon = btnFavorito.querySelector('i');
+var iframePrincipal = document.getElementById('iframe-principal');
 
-document.addEventListener('DOMContentLoaded', function () {
-const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-const episodeItems = document.querySelectorAll('.episode-item');
-const mainVideo = document.getElementById('main-video');
-const seasonSelect = document.getElementById('season-select');
-const episodeList = document.getElementById('episode-list');
-const lastWatchedInfo = document.getElementById('last-watched-info');
-const progressInfo = document.getElementById('progress-info');
+var serieActual = {
+id: serieId,
+titulo: "Kaiju No. 8",
+temporada: temporadaSelect.value,
+poster: "https://image.tmdb.org/t/p/w500//A6JOsCdFFTxtbDnKAfE0iY6jOiE.jpg"
+};
 
-// Mostrar estado de episodios
-checkboxes.forEach(function (checkbox) {
-const episode = checkbox.getAttribute('data-episode');
-const label = checkbox.previousElementSibling;
-const key = serieId + "-episode-" + episode;
-const storedStatus = localStorage.getItem(key) === 'true';
+var videosPorCapitulo = {
+"1": {
 
-checkbox.checked = storedStatus;
-label.textContent = storedStatus ? 'VISTO' : 'NO VISTO';
+"1": "https://unlimplay.com/embed/?VjJHd0F5MFdvUis1bmRGaEhvSlMxWjZTMHQvd3lpZVoxVFI0QUVxSmFmb2dpM0x1eXhkbEczZkEvbG9TcGJQUEtiNURKVGRlV2N6S1NPOU1oQUM2MFNxMGFjRU9mSzZKSVUvK1oyQTBRd0pLZC9iVmFlejlidE1JeEt4N3pTaFE,",
+  "2": "https://unlimplay.com/embed/?SlhCOUlWdmtORDRndnFDUU1VNStSOUlDTG1HY0NDdEVibkdOWHRuWC9WeVRtL1UwNGlRRVc2cXNJSzUwVE5RMDBqald4TTd0cTBkYUJncWc3SXE3VzJZK1BrdDFXTFJmVTMwaW8xR0srNmZ2V1NGMlpsK283V3Fwb21TT0phSmc,",
+  "3": "https://unlimplay.com/embed/?Y1hTcWtuaXl2b3ZrVkZzcGVqUjlKWXBhMnZ6NGppaGx0bHJrTTRGN0I4TEp6QjhFekg0ZUZnSXJJWWU4dEdaUXJ4cXpmamZFOFoxeDVvMGJlaWlienN3VHh3TTBZek1pTUN2ZnYxMVBTa28xa1JRcFkzOEdETTJSMEtBdE53OHg,",
+  "4": "https://unlimplay.com/embed/?Y1RRbWxEci9zdXFhdVlhNDhsWEFuUExYRjV4WWtyOW9hdFlLeUlZMk1UMkxrU3kyL3RZSkZUTDRwSXI0RWhEMm16TWF0T2JzaU55WU04MTZzT0RwblBGWlNLM1J5b3E4RDV4YjNOR3ZYK1FhWHZrdlk1RVpBeTRMdXI3N2I3ekI,",
+  "5": "https://unlimplay.com/embed/?cGRwUjlNZ284R2tieFdtNEg1ZVdFN0RxRVpQelZOK2YrYUR4dVFkWXA3dC9oYlM2UEc5ZHZhVHVMRHVWcHROalQ0SVczbXJVUWV1M0ZQdmdxUEtEaHpZY0pBR2VVRE50NVIvUThKeXhlZEJLdUZRU1lERGh4bW5uNEUzZmRjUVQ,",
+  "6": "https://unlimplay.com/embed/?YWs3dCtpZmdmTGhrZG1LSnYyVndFTCtGTHVWcDg2bHU4N0xic0orSERsdDRuZTVJMnE4M2FQYnRXRlNTV2FXRVkwWi9OdmEwVHI2R0taNGhnTTUwQnJLQXgva2tFRG83VXM4NzRwMEg1K3E3Uys2akRnRG4vcHlSbDl3aUc0SHU,",
+  "7": "https://unlimplay.com/embed/?b3ZHd1MyNCtrbURDNG1LTFovRXYvaTF6VEptRWZRS1M2cTF0bDVwekV3K3pJMjBsdHYxODlWVk9iNFp5OWNrSWdnclNyeFF6VGhSTzBLaDJJWTAyYzhMSmhQRFk2T1RlQXViNW5TTkxGSGtaVnc0Z0QxVlpmWW9VM3B3OHU2Q00,",
+  "8": "https://unlimplay.com/embed/?RzZRS0FOb2RZbnJHcDBjSjU1YThXS05CK0xMTkljazh5M2R4KzZFbDc1QjdLVXpNMk5ZV3RtK0JVdUlDUVlMNU45TlRjSU1vNUMxUnUwS0p2a091eU5VeGlGc082eXhBYmx4SlFMaU9IeVF2WnE2dXlrbGxEYnlQeHJqenpCWDA,",
+  "9": "https://unlimplay.com/embed/?aGpSSVdKVUF2UjdXTXZIbGxhaHRtSVNYbkpSdnprU3RDK2grVi9jUEduenFCNjRjR2tXSGRmeXNvblZ6b3pWbHBhdXgwZnBmVHllSVVMM2pIQ2tWdVVTcDVxSEUrcUtEL1Z3UzQ0YXVqRnptaUlKRWxTTXV6ZHkyTW1JUnVWVW4,",
+  "10": "https://unlimplay.com/embed/?dTVuVExVc0c1cHp6Qk5sSW9ONC82dWMrWlJYb20wcjZSOVFyZ3Vja0VNSDJjeGVNMWFZZVh5L2hNOGRDUkdrRDBHN3h1L2xoRzlFUXVhaUNOUkdHR21sc1luMnQrcE5DQmhwUStPTHVzNDBJNkFmc0JsS1FsOU5UcU9IZkwwUlA,",
+  "11": "https://unlimplay.com/embed/?cEJRdy9RUm5TdjlZd2hDcTl0Q0NFWjM0UitybEMxVG1lMnlCc041V0ROVWpjS0pkekRWSVlGeFBJRE5zdlV1Ni9SZitSaWFmMWVIYzB0Qmd6MlZFRzEwSmNQZGhIdEs2K3BORWxyQ05uNGZ0cWs2ZkJ4QlE0aWNpd1kxVXR5RDM,",
+  "12": "https://unlimplay.com/embed/?cVlybVg1SVJ5em9hT2ErV2d0dFVUd1BSNkVQUUErcE9uRkZvRDVjb0hGTnF5c2l6TzZabUxNSzkwRVlvY1VyWlBnRVBGcnJtcjZMOHI2OHVIVFNNbUN4NHAza2JjYkhuNzREbWdmSjNzRnFkMWxldlNLWlcyNzEweW5xZ3hOZzQ,",
 
-checkbox.addEventListener('change', function () {
-const newStatus = checkbox.checked;
-localStorage.setItem(key, newStatus);
-label.textContent = newStatus ? 'VISTO' : 'NO VISTO';
-updateProgress();
-});
+},
 
-checkbox.addEventListener('click', function (event) {
-event.stopPropagation();
-});
-});
+};
 
-// Reproducir episodio y guardar último visto
-episodeItems.forEach(function (item) {
-item.addEventListener('click', function () {
-const videoUrl = item.getAttribute('data-video-url');
-const season = item.getAttribute('data-season');
-const episode = item.querySelector('input[type="checkbox"]').getAttribute('data-episode');
-
-mainVideo.src = videoUrl;
-
-localStorage.setItem(serieId + "-last-watched", videoUrl);
-localStorage.setItem(serieId + "-last-watched-season", season);
-localStorage.setItem(serieId + "-last-watched-ep", episode);
-
-updateLastWatched();
-});
-});
-
-// Filtro de temporadas
-seasonSelect.addEventListener('change', function () {
-const selectedSeason = seasonSelect.value;
-
-// Ocultar todos los episodios
-const allEpisodes = episodeList.querySelectorAll('.episode-item');
-allEpisodes.forEach(function (ep) {
-ep.style.display = 'none';
-});
-
-// Mostrar solo los de la temporada seleccionada
-const selectedEpisodes = episodeList.querySelectorAll('.episode-item[data-season="' + selectedSeason + '"]');
-selectedEpisodes.forEach(function (ep) {
-ep.style.display = 'flex';
-});
-
-updateProgress();
-});
-
-// Cargar último episodio automáticamente
-const lastVideo = localStorage.getItem(serieId + "-last-watched");
-if (lastVideo) {
-mainVideo.src = lastVideo;
+function cargarFavoritos() {
+var favs = localStorage.getItem('seriesFavoritas');
+return favs ? JSON.parse(favs) : [];
 }
 
-function updateLastWatched() {
-const ep = localStorage.getItem(serieId + "-last-watched-ep");
-const season = localStorage.getItem(serieId + "-last-watched-season");
-if (ep && season) {
-lastWatchedInfo.textContent = "Último episodio visto: " + season.toUpperCase() + " - EP" + ep;
+function guardarFavoritos(favoritos) {
+localStorage.setItem('seriesFavoritas', JSON.stringify(favoritos));
+}
+
+function esFavorito(serie, favoritos) {
+return favoritos.some(function(fav) {
+return fav.id === serie.id && fav.temporada === serie.temporada;
+});
+}
+
+function actualizarBotonFavorito() {
+var favoritos = cargarFavoritos();
+if (esFavorito(serieActual, favoritos)) {
+btnFavorito.classList.add('bg-[#FF7F00]');
+iconoCorazon.classList.add('fas');
+iconoCorazon.classList.remove('far');
 } else {
-lastWatchedInfo.textContent = '';
+btnFavorito.classList.remove('bg-[#FF7F00]');
+iconoCorazon.classList.remove('fas');
+iconoCorazon.classList.add('far');
 }
 }
 
-function updateProgress() {
-const selectedSeason = seasonSelect.value;
-const episodes = episodeList.querySelectorAll('.episode-item[data-season="' + selectedSeason + '"]');
-
-let total = 0;
-let vistos = 0;
-
-episodes.forEach(function (ep) {
-const checkbox = ep.querySelector('input[type="checkbox"]');
-total++;
-if (checkbox.checked) {
-vistos++;
-}
+btnFavorito.addEventListener('click', function() {
+var favoritos = cargarFavoritos();
+if (esFavorito(serieActual, favoritos)) {
+favoritos = favoritos.filter(function(fav) {
+return !(fav.id === serieActual.id && fav.temporada === serieActual.temporada);
 });
-
-progressInfo.textContent = "Progreso: " + vistos + " de " + total + " episodios vistos";
-}
-
-// Reiniciar progreso
-document.getElementById('reset-progress').addEventListener('click', function () {
-if (confirm('¿Estás seguro de que deseas reiniciar todo el progreso?')) {
-const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-checkboxes.forEach(function (checkbox) {
-const episode = checkbox.getAttribute('data-episode');
-const key = serieId + "-episode-" + episode;
-localStorage.removeItem(key);
-checkbox.checked = false;
-checkbox.previousElementSibling.textContent = 'NO VISTO';
-});
-
-localStorage.removeItem(serieId + "-last-watched");
-localStorage.removeItem(serieId + "-last-watched-ep");
-localStorage.removeItem(serieId + "-last-watched-season");
-
-document.getElementById('main-video').src = '';
-lastWatchedInfo.textContent = '';
-progressInfo.textContent = 'Progreso: 0 episodios vistos';
-}
-});
-
-// Inicializar
-seasonSelect.dispatchEvent(new Event('change'));
-updateLastWatched();
-});
-
-// Función para mostrar/ocultar la sinopsis
-function toggleSynopsis() {
-const synopsis = document.getElementById('synopsis');
-const button = document.querySelector('.synopsis-button');
-if (synopsis.style.display === 'none' || synopsis.style.display === '') {
-synopsis.style.display = 'block';
-button.innerText = 'Ocultar sinopsis';
 } else {
-synopsis.style.display = 'none';
-button.innerText = 'Ver sinopsis';
+favoritos.push(Object.assign({}, serieActual));
+}
+guardarFavoritos(favoritos);
+actualizarBotonFavorito();
+});
+
+function guardarTemporada(temporada) {
+localStorage.setItem("temporadaSeleccionada_" + serieId, temporada);
+}
+
+function cargarTemporadaGuardada() {
+var temp = localStorage.getItem("temporadaSeleccionada_" + serieId);
+return temp ? temp : "1";
+}
+
+function guardarCapitulo(capitulo) {
+var key = "ultimoCapituloVisto_" + serieId + "_T" + serieActual.temporada;
+localStorage.setItem(key, capitulo);
+}
+
+function cargarCapituloGuardado() {
+var key = "ultimoCapituloVisto_" + serieId + "_T" + serieActual.temporada;
+var capituloGuardado = localStorage.getItem(key);
+var botones = listaCapitulos.getElementsByClassName('capitulo-btn');
+var encontrado = false;
+
+for (var i = 0; i < botones.length; i++) {
+botones[i].className = botones[i].className.replace(' capitulo-seleccionado', '');
+if (botones[i].getAttribute('data-capitulo') === capituloGuardado) {
+botones[i].className += ' capitulo-seleccionado';
+botones[i].scrollIntoView({ behavior: 'smooth', inline: 'center' });
+cambiarVideo(capituloGuardado);
+encontrado = true;
 }
 }
+if (!encontrado) {
+cambiarVideo("1");
+}
+}
+
+function cambiarVideo(capitulo) {
+var temp = serieActual.temporada;
+var url = videosPorCapitulo[temp] && videosPorCapitulo[temp][capitulo];
+if (url) {
+iframePrincipal.src = url;
+guardarCapitulo(capitulo);
+}
+}
+
+function generarCapitulos(temporada) {
+listaCapitulos.innerHTML = '';
+var capitulosObj = videosPorCapitulo[temporada] || {};
+var total = Object.keys(capitulosObj).length;
+
+for (var i = 1; i <= total; i++) {
+var btn = document.createElement('button');
+btn.className = 'capitulo-btn px-4 py-2 rounded bg-[#2a2a2a] text-white';
+btn.setAttribute('data-capitulo', i.toString());
+btn.textContent = i;
+listaCapitulos.appendChild(btn);
+}
+agregarEventosCapitulos();
+cargarCapituloGuardado();
+}
+
+function agregarEventosCapitulos() {
+var botones = listaCapitulos.getElementsByClassName('capitulo-btn');
+for (var i = 0; i < botones.length; i++) {
+(function(index){
+botones[index].onclick = function() {
+for (var j = 0; j < botones.length; j++) {
+botones[j].className = botones[j].className.replace(' capitulo-seleccionado', '');
+}
+if (botones[index].className.indexOf('capitulo-seleccionado') === -1) {
+botones[index].className += ' capitulo-seleccionado';
+}
+botones[index].scrollIntoView({ behavior: 'smooth', inline: 'center' });
+cambiarVideo(botones[index].getAttribute('data-capitulo'));
+};
+})(i);
+}
+}
+
+temporadaSelect.onchange = function() {
+var temp = temporadaSelect.value;
+serieActual.temporada = temp;
+tempTitulo.textContent = temp;
+guardarTemporada(temp);
+generarCapitulos(temp);
+actualizarBotonFavorito();
+};
+
+window.onload = function() {
+var tempGuardada = cargarTemporadaGuardada();
+temporadaSelect.value = tempGuardada;
+serieActual.temporada = tempGuardada;
+tempTitulo.textContent = tempGuardada;
+generarCapitulos(tempGuardada);
+actualizarBotonFavorito();
+};
 </script>
-
 </body>
 </html>
